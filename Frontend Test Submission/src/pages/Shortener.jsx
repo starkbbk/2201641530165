@@ -1,4 +1,3 @@
-
 import React from 'react'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
@@ -27,7 +26,9 @@ export default function Shortener(){
 
   function validateRow(r){
     const msgs = []
-    if(!isValidUrl(r.url)) msgs.push('Enter a valid http(s) URL')
+    const url = (r.url || '').trim()
+    if(url === '') return msgs               // ← allow empty rows
+    if(!isValidUrl(url)) msgs.push('Enter a valid http(s) URL')
     if(!isValidMinutes(r.minutes)) msgs.push('Validity must be a positive integer (minutes)')
     if(!isValidCode(r.code)) msgs.push('Shortcode must be 3-24 chars [a-z A-Z 0-9 _ -]')
     return msgs
@@ -35,22 +36,20 @@ export default function Shortener(){
 
   async function onShorten(){
     const es = rows.map(validateRow)
-    const anyErr = es.some(x=>x.length>0)
     setErrors(es)
-    if(anyErr){ await Log('frontend','warn','page','validation failed'); return }
+    const filled = rows.filter(r => (r.url||'').trim() !== '')
+    const hasErr = es.some((msgs, i) => ((rows[i].url||'').trim() !== '') && msgs.length>0)
+    if(hasErr){ await Log('frontend','warn','page','validation failed'); return }
+
     const out = []
-    for(const r of rows){
-      if(!r.url) continue
-      let code = r.code || genCode()
+    for(const r of filled){
+      let code = (r.code||'').trim() || genCode()
       let guard = 0
-      while(codeExists(code)){ // ensure uniqueness
-        code = genCode()
-        guard++; if(guard>5) break
-      }
+      while(codeExists(code)){ code = genCode(); guard++; if(guard>8) break }
       const mins = r.minutes && String(r.minutes).trim()!=='' ? parseInt(r.minutes,10) : 30
       const now = Date.now()
       const expiry = now + mins*60*1000
-      const link = { code, url:r.url, created: now, expiry, clicks:0 }
+      const link = { code, url: r.url.trim(), created: now, expiry, clicks:0 }
       saveLink(link)
       out.push(link)
       await Log('frontend','info','page',`shortened ${r.url} -> ${code} (${mins}m)`)
@@ -65,7 +64,9 @@ export default function Shortener(){
         {rows.map((r,i)=>(
           <div key={i}>
             <UrlRow i={i} value={r} onChange={setRow} />
-            {errors[i] && errors[i].length>0 && <Alert severity="error">{errors[i].join(' • ')}</Alert>}
+            {(r.url||'').trim()!=='' && errors[i] && errors[i].length>0 && (
+              <Alert severity="error">{errors[i].join(' • ')}</Alert>
+            )}
           </div>
         ))}
         <Button variant="contained" onClick={onShorten}>Create Short Links</Button>

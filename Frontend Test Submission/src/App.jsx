@@ -1,4 +1,3 @@
-
 import React from 'react'
 import { Outlet, Link } from 'react-router-dom'
 import Container from '@mui/material/Container'
@@ -16,7 +15,14 @@ export default function App(){
     <Box sx={{ minHeight:'100%', bgcolor:'#0b0f14' }}>
       <AppBar position="static" color="default" sx={{ background:'#121821', borderBottom:'1px solid rgba(255,255,255,.08)'}}>
         <Toolbar>
-          <Typography variant="h6" sx={{ flexGrow:1, color:'#e6f1ff' }}>URL Shortener</Typography>
+          <Typography
+            component={Link}
+            to="/"
+            variant="h6"
+            sx={{ flexGrow:1, color:'#e6f1ff', textDecoration:'none', cursor:'pointer', '&:hover':{ opacity:.85 } }}
+          >
+            URL Shortener
+          </Typography>
           <Button color="inherit" component={Link} to="/">Shorten</Button>
           <Button color="inherit" component={Link} to="/stats">Stats</Button>
           <Button color="inherit" startIcon={<SettingsSuggestIcon />} onClick={()=>setOpen(true)}>Settings</Button>
