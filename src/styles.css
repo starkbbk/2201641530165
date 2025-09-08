@@ -1,0 +1,5 @@
+
+html,body,#root{height:100%}
+body{margin:0;background:#0b0f14;color:#e6f1ff;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial}
+a{color:#4cc9f0;text-decoration:none}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace}
